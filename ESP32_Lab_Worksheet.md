@@ -390,23 +390,42 @@ Memory analysis complete!
 
 | Memory Section | Variable/Function | Address (ที่แสดงออกมา) | Memory Type |
 |----------------|-------------------|----------------------|-------------|
-| Stack | stack_var | 0x_______ | SRAM |
-| Global SRAM | sram_buffer | 0x_______ | SRAM |
-| Flash | flash_string | 0x_______ | Flash |
-| Heap | heap_ptr | 0x_______ | SRAM |
+| Stack | stack_var | 0x3ffb4550 | SRAM |
+| Global SRAM | sram_buffer | 0x3ffb16ac | SRAM |
+| Flash | flash_string | 0x3f407b64 | Flash |
+| Heap | heap_ptr | 0x3ffb5264 | SRAM |
 
 **Table 2.2: Memory Usage Summary**
 
 | Memory Type | Free Size (bytes) | Total Size (bytes) |
 |-------------|-------------------|--------------------|
-| Internal SRAM | _________ | 520,192 |
-| Flash Memory | _________ | varies |
-| DMA Memory | _________ | varies |
+| Internal SRAM | 380096 | 520,192 |
+| Flash Memory | 0| varies |
+| DMA Memory |  303096  | varies |
 
 ### คำถามวิเคราะห์ (ง่าย)
 
 1. **Memory Types**: SRAM และ Flash Memory ใช้เก็บข้อมูลประเภทไหน?
+SRAM
+ข้อมูลชั่วคราว (Temporary data)
+ข้อมูลระหว่างประมวลผล
+ค่า register หรือ buffer ภายในไมโครคอนโทรลเลอร์ (MCU)
+
+Flash Memory
+ข้อมูลถาวร (Non-volatile data)
+โค้ดโปรแกรม (Firmware / Binary)
+ค่าคงที่ที่ไม่เปลี่ยนบ่อย (เช่น ค่าคอนฟิก หรือค่าพารามิเตอร์ของระบบ)
+
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
+ 1. ตัวแปร global และ static (ที่กำหนดค่าเริ่มต้น)
+ตัวแปรประเภทนี้จะถูกเก็บไว้ใน Data Segment ซึ่งอยู่ใน SRAM (หน่วยความจำแบบลบเมื่อปิดเครื่อง) และจะถูกโหลดมาจาก Flash ขณะเริ่มโปรแกรม
+Address Range โดยทั่วไป: เริ่มต้นจากช่วงต้นของ SRAM เช่น 0x20000000 (STM32) หรือ 0x3FFE0000 (ESP32)
+
+2. ตัวแปร global และ static (ที่ไม่ได้กำหนดค่าเริ่มต้น)
+จะอยู่ใน BSS Segment ซึ่งก็อยู่ใน SRAM เช่นกัน โดยจะถูกเคลียร์ให้เป็นศูนย์ตอนเริ่มรันโปรแกรม
+Address Range: ต่อจาก Data Segment ภายใน SRAM
+
+
 3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
 
 ---
@@ -596,7 +615,7 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
+| Sequential | Internal SRAM |380096 | 1.00x |
 | Random | Internal SRAM | _______ | ____x |
 | Sequential | External Memory | _______ | ____x |
 | Random | External Memory | _______ | ____x |

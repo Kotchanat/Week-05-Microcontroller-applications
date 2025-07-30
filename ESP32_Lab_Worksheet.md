@@ -417,16 +417,15 @@ Flash Memory
 ค่าคงที่ที่ไม่เปลี่ยนบ่อย (เช่น ค่าคอนฟิก หรือค่าพารามิเตอร์ของระบบ)
 
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
- 1. ตัวแปร global และ static (ที่กำหนดค่าเริ่มต้น)
-ตัวแปรประเภทนี้จะถูกเก็บไว้ใน Data Segment ซึ่งอยู่ใน SRAM (หน่วยความจำแบบลบเมื่อปิดเครื่อง) และจะถูกโหลดมาจาก Flash ขณะเริ่มโปรแกรม
-Address Range โดยทั่วไป: เริ่มต้นจากช่วงต้นของ SRAM เช่น 0x20000000 (STM32) หรือ 0x3FFE0000 (ESP32)
+Global (มีค่าเริ่มต้น)	      Data Segment
+Global (ไม่มีค่า)	        BSS Segment
+Static (มีค่า)	          Data Segment
+Static (ไม่มีค่า)	        BSS Segment
+Local	                  Stack
+Dynamic (malloc/calloc)	Heap
+Constant / Literal	    Read-Only / Text Segment
 
-2. ตัวแปร global และ static (ที่ไม่ได้กำหนดค่าเริ่มต้น)
-จะอยู่ใน BSS Segment ซึ่งก็อยู่ใน SRAM เช่นกัน โดยจะถูกเคลียร์ให้เป็นศูนย์ตอนเริ่มรันโปรแกรม
-Address Range: ต่อจาก Data Segment ภายใน SRAM
-
-
-3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
+4. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
 
 ---
 
@@ -615,20 +614,20 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM |380096 | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM |3719 μs | 1.00x |
+| Random | Internal SRAM | 4233 μs |  1.14x |
+| Sequential | External Memory | 3747 μs|  1.14x |
+| Random | External Memory | 4501 μs  | 1.20x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 3650 μs | 1.00x |
+| 2 | 1839 μs | 0.50x |
+| 4 | 922 μs  | 0.25x |
+| 8 | 464 μs  | 0.13x |
+| 16 | 216 μs | 0.06x |
 
 ### คำถามวิเคราะห์
 
